@@ -1,10 +1,12 @@
-import { useState, } from "react";
+import { useEffect, useState, } from "react";
 import { Logo,FormRow } from "../components";
 import Wrapper from "../assets/wrappers/RegisterPage";
   import {  toast } from "react-toastify";
+import { registerUser,loginUser } from "../features/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 // redux toolkit and useNavigate later
-
 const initialState = {
   name: "",
   email: "",
@@ -16,7 +18,9 @@ const initialState = {
 
 function Register() {
   const [values, setValues] = useState(initialState);
-
+const dispatch = useDispatch()
+const {isLoading,user} = useSelector((store) => {return store.user })
+const navigate = useNavigate()
   // redux toolkit and useNavigate later
 
   const handleChange = (e) => {
@@ -31,11 +35,17 @@ function Register() {
     if (!email || !password || (!name && !isMember)) {
       toast.warning("please provide all values ");
     }
+    if(isMember) {
+      dispatch(loginUser({email,password}))
+    }
+    if(!isMember) {
+      dispatch(registerUser({name,email,password}))
+    }
   };
 
   const toggleMember = () => { setValues({...initialState,isMember:!values.isMember}) }
 
-
+useEffect(() => { if(user) {setTimeout(() => { navigate('/') },3000)} },[user,navigate])
   return (
     <Wrapper className="full-page">
       <form className="form" onSubmit={onSubmit}>
@@ -69,8 +79,8 @@ function Register() {
           />
         </div>
 
-        <button type="submit" className="btn btn-block">
-          submit
+        <button type="submit" className="btn btn-block" disabled={isLoading}>
+          {isLoading?'loading':'submit'}
         </button>
         <p>
           {values.isMember ? "Not a member yet?" : "Already a member?"}
