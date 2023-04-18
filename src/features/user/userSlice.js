@@ -6,11 +6,19 @@ import {
   removeUserFromLocalStorage,
   addUserToLocalStorage,
 } from "../../utils/localStorage";
+
+import { clearAllJobsState } from "../allJobs/allJobsSlice";
+import { clearValues } from "../job/jobSlice";
+
+
 const initialState = {
   isLoading: false,
   isSidebarOpen: false,
   user: getUserFromLocalStorage(),
-};
+}
+
+
+
 
 export const registerUser = createAsyncThunk(
   "user/registerUser",
@@ -56,17 +64,33 @@ export const updateUser = createAsyncThunk(
   }
 );
 
+
+export const clearStoreThunk = async (message, thunkAPI) => {
+  try {
+    // logout user
+    thunkAPI.dispatch(logoutUser(message));
+    // clear jobs value
+    thunkAPI.dispatch(clearAllJobsState());
+    // clear job input values
+    thunkAPI.dispatch(clearValues());
+    return Promise.resolve();
+  } catch (error) {
+    // console.log(error);
+    return Promise.reject();
+  }
+};
+
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    logoutUser: (state,{payload}) => {
+    logoutUser: (state, { payload }) => {
       state.user = null;
       state.isSidebarOpen = false;
       removeUserFromLocalStorage();
-        if (payload) {
-          toast.success(payload);
-        }
+      if (payload) {
+        toast.success(payload);
+      }
     },
     toggleSidebar: (state) => {
       state.isSidebarOpen = !state.isSidebarOpen;
@@ -115,6 +139,9 @@ const userSlice = createSlice({
     [updateUser.rejected]: (state, { payload }) => {
       state.isLoading = false;
       toast.error(payload);
+    },
+    [clearStoreThunk.rejected]: () => {
+      toast.error("There was an error");
     },
   },
 });

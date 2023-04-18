@@ -6,7 +6,7 @@ import { toggleSidebar,logoutUser } from "../features/user/userSlice";
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-
+import {clearStoreThunk}from'../features/user/userSlice'
 const Navbar = () => {
   const { user } = useSelector((store) => store.user);
   const dispatch = useDispatch();
@@ -44,7 +44,7 @@ const toggle = () => {
               type='button'
               className='dropdown-btn'
               onClick={() => {
-               dispatch(logoutUser());
+               dispatch(clearStoreThunk());
                toast.warn('loggingOut');
               }}
             >
